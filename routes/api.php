@@ -16,3 +16,18 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::group(array('prefix' => '/api'), function()
+{
+
+    Route::get('/', function () {
+        return response()->json(['message' => 'Jobs API', 'status' => 'Connected']);
+    });
+
+    Route::resource('/products', 'api\RequestProducts');
+    Route::resource('/product-categories', 'api\RequestProductCategories');
+});
+
+Route::get('/', function () {
+    return redirect('api');
+});
+

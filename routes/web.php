@@ -12,5 +12,12 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('dashboard.index');
 });
+
+Auth::routes();
+//Route::get('/products/list', 'ProductsController@list');
+//Route::get('/products/{products}/find', 'ProductsController@find');
+//Route::get('/products/list-categories', 'ProductsController@listCategories');
+//Route::get('/dashboard', 'DashboardController@index')->name('home');
+//Route::resource('/dashboard/products', 'Dashboard\ProductsController', ['except' => ['edit', 'show']]);

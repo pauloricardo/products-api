@@ -6,7 +6,6 @@
  */
 
 require('./bootstrap');
-
 window.Vue = require('vue');
 
 /**
@@ -15,7 +14,10 @@ window.Vue = require('vue');
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
+Vue.component('create-product', require('./components/CreateProduct.vue'));
 Vue.component('example', require('./components/Example.vue'));
+Vue.component('dashboard', require('./components/Dashboard.vue'));
+Vue.component('products', require('./components/Products.vue'));
 
 const app = new Vue({
     el: '#app'
