@@ -43304,7 +43304,7 @@ var render = function() {
                     type: "text",
                     name: "name",
                     id: "name",
-                    placeholder: "Goku God T-Shirt"
+                    placeholder: "Product name"
                   },
                   domProps: { value: _vm.product.name },
                   on: {
@@ -43360,9 +43360,7 @@ var render = function() {
                   on: { change: _vm.upload }
                 }),
                 _vm._v(" "),
-                _c("p", { staticClass: "help-block" }, [
-                  _vm._v("Ka me ha me ha ...")
-                ])
+                _c("p", { staticClass: "help-block" }, [_vm._v("Image ...")])
               ]),
               _vm._v(" "),
               _c("div", { staticClass: "form-group" }, [

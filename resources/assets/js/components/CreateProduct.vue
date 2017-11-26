@@ -12,7 +12,7 @@
                         <div class="form-group">
                             <label for="name">Product Name</label>
                             <input type="text" class="form-control" v-model="product.name" name="name" id="name"
-                                   placeholder="Goku God T-Shirt">
+                                   placeholder="Product name">
                         </div>
                         <div class="form-group">
                             <label for="description">Description</label>
@@ -23,7 +23,7 @@
                         <div class="form-group">
                             <label for="image">Image of your product</label>
                             <input type="file" name="image" id="image" @change="upload">
-                            <p class="help-block">Ka me ha me ha ...</p>
+                            <p class="help-block">Image ...</p>
                         </div>
                         <div class="form-group">
                             <label for="price">Price</label>
