@@ -61,12 +61,13 @@
         description: '',
         image: '',
         price: '',
-        product_category_id: ''
+        product_category_id: '',
+//        csrf_token: Laravel.csrfToken
     };
     let formTitle, successMessage, submitPath, imgSrc = '';
     export default {
         beforeCreate() {
-            axios.get('api/api/product-categories').then(response => this.categories = response.data);
+            axios.get('api/product-categories').then(response => this.categories = response.data);
         },
         data() {
             return {product, categories: [], formTitle, successMessage, submitPath, imgSrc};
@@ -75,14 +76,14 @@
             this.$parent.$bus.$on('saveProduct', () => {
                 this.resetProductObject();
                 this.$data.formTitle = 'Add Product';
-                this.$data.submitPath = '/api/api/products/create';
+                this.$data.submitPath = '/api/products/create';
                 this.$data.imgSrc = '';
 
             });
             this.$parent.$bus.$on('editProduct', (product) => {
                 this.$data.product = product;
                 this.$data.formTitle = 'Update Product';
-                this.$data.submitPath = '/api/api/products/edit/' + product.id;
+                this.$data.submitPath = '/api/products/edit/' + product.id;
                 this.$data.imgSrc = 'products/images/' + this.$data.product.image;
             })
         },

@@ -47,7 +47,6 @@
                 if (reload) this.getList();
             });
             this.$parent.$bus.$on('csvUploaded', response => {
-                console.log(response)
                 $('#modalCsvUpload').modal('toggle');
                 this.$parent.$bus.$emit('emitMessage', {
                     'class': response.status !== 200 ? 'danger' : 'success',
@@ -64,7 +63,7 @@
                 $('#modalForm').modal();
             },
             edit(id) {
-                axios.get('api/api/products/find/' + id).then(response => {
+                axios.get('api/products/find/' + id).then(response => {
                     this.$parent.$bus.$emit('editProduct', response.data);
                     $('#modalForm').modal();
                 });
@@ -72,7 +71,7 @@
             remove(id) {
                 const confirmation = window.confirm('Are you sure?');
                 if (!confirmation) return;
-                axios.delete('api/api/products/destroy/' + id).then(response => {
+                axios.delete('api/products/destroy/' + id).then(response => {
                     this.$parent.$bus.$emit('emitMessage', {
                         'class': 'success',
                         'message': response.data.message
@@ -81,7 +80,7 @@
                 });
             },
             getList() {
-                axios.get('api/api/products').then(response => this.products = response.data);
+                axios.get('api/products').then(response => this.products = response.data);
             }
         }
     }

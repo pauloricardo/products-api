@@ -8,6 +8,7 @@
 require('./bootstrap');
 window.Vue = require('vue');
 
+
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
@@ -29,6 +30,21 @@ Vue.component('products', require('./components/Products.vue'));
 Vue.component('example', require('./components/Example.vue'));
 Vue.component('dashboard', require('./components/Dashboard.vue'));
 Vue.component('upload-csv', require('./components/UploadCSV.vue'));
+Vue.component('login', require('./components/Login.vue'));
+Vue.component(
+    'passport-clients',
+    require('./components/passport/Clients.vue')
+);
+
+Vue.component(
+    'passport-authorized-clients',
+    require('./components/passport/AuthorizedClients.vue')
+);
+
+Vue.component(
+    'passport-personal-access-tokens',
+    require('./components/passport/PersonalAccessTokens.vue')
+);
 Vue.config.silent = true;
 const app = new Vue({
     el: '#app'

@@ -12,11 +12,7 @@
 */
 
 Route::get('/', function () {
-    if(!Auth::user()) {
-        return view('auth.login');
-    } else {
         return view('dashboard.index');
-    }
 });
 
 Auth::routes();
