@@ -13,12 +13,23 @@ window.Vue = require('vue');
  * the page. Then, you may begin adding components to this application
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
+var EventBus = new Vue();
 
-Vue.component('create-product', require('./components/CreateProduct.vue'));
+Object.defineProperties(Vue.prototype, {
+    $bus: {
+        get: function () {
+            return EventBus;
+        }
+    }
+});
+
+Vue.component('create-product', require('./components/Form.vue'));
+Vue.component('banner-message', require('./common/BannerMessage.vue'));
+Vue.component('products', require('./components/Products.vue'));
 Vue.component('example', require('./components/Example.vue'));
 Vue.component('dashboard', require('./components/Dashboard.vue'));
-Vue.component('products', require('./components/Products.vue'));
-
+Vue.component('upload-csv', require('./components/UploadCSV.vue'));
+Vue.config.silent = true;
 const app = new Vue({
     el: '#app'
 });

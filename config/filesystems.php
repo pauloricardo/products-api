@@ -47,7 +47,16 @@ return [
             'driver' => 'local',
             'root' => storage_path('app'),
         ],
-
+        'products' => [
+            'driver' => 'local',
+            'root' => public_path('products'),
+            'url' => env('APP_URL').'/products',
+            'visibility' => 'public',
+        ],
+        'csv' => [
+            'driver' => 'local',
+            'root' => storage_path('app/csv')
+         ],
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

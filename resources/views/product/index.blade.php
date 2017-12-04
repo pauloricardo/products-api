@@ -11,5 +11,7 @@
         <p>List</p>
         <product-list :product='product'></product-list>
         <edit-product :product='product'></edit-product>
+        <upload-csv></upload-csv>
+
     </div>
 @endsection

@@ -1,6 +1,7 @@
 <template>
     <div class="table-responsive">
         <button class="btn btn-primary" @click="add()">Add Product</button>
+        <button class="btn btn-primary" @click="importCsv()">Import CSV</button>
         <table class="table table-condensed">
             <thead>
             <tr>
@@ -35,7 +36,6 @@
         </table>
     </div>
 </template>
-
 <script>
     export default {
         data() {
@@ -43,25 +43,40 @@
         },
         mounted() {
             this.getList();
-            this.$parent.$on('reloadList', reload => {
+            this.$parent.$bus.$on('close', reload => {
                 if (reload) this.getList();
+            });
+            this.$parent.$bus.$on('csvUploaded', response => {
+                console.log(response)
+                $('#modalCsvUpload').modal('toggle');
+                this.$parent.$bus.$emit('emitMessage', {
+                    'class': response.status !== 200 ? 'danger' : 'success',
+                    'message': response.message
+                });
             });
         },
         methods: {
+            importCsv() {
+                $('#modalCsvUpload').modal();
+            },
             add() {
-                $('#modalAddProduct').modal();
+                this.$parent.$bus.$emit('saveProduct');
+                $('#modalForm').modal();
             },
             edit(id) {
-                axios.get('product/' + id + '/find').then(response => {
-                    this.$parent.$emit('product', response.data);
-                    $('#modalEditProduct').modal();
+                axios.get('api/api/products/find/' + id).then(response => {
+                    this.$parent.$bus.$emit('editProduct', response.data);
+                    $('#modalForm').modal();
                 });
             },
             remove(id) {
                 const confirmation = window.confirm('Are you sure?');
                 if (!confirmation) return;
-                axios.delete('product/' + id).then(response => {
-                    alert(response.data.message);
+                axios.delete('api/api/products/destroy/' + id).then(response => {
+                    this.$parent.$bus.$emit('emitMessage', {
+                        'class': 'success',
+                        'message': response.data.message
+                    });
                     this.getList();
                 });
             },
