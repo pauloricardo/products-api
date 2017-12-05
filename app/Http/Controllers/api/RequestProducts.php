@@ -9,6 +9,7 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Requests\CreateProductRequest;
 use App\Products;
 use App\ProductsCategory;
 use App\Traits\StatusTrait;
@@ -27,17 +28,10 @@ class RequestProducts extends Controller
         return response()->json($products);
     }
 
-    public function create(Request $request, ProductsCategory $productsCategory)
+    public function create(CreateProductRequest $request, ProductsCategory $productsCategory)
     {
         $message = ['message' => 'Product successfully created!', 'status' => StatusTrait::$status['success']];
         if ($data = $request->all()) {
-            $validatedData = $request->validate([
-                'name' => 'required',
-                'description' => 'required',
-                'image' => 'required',
-                'price' => 'required',
-                'product_category_id' => 'required'
-            ]);
             try {
                 $productsCategory->find($data['product_category_id'])
                     ->products()
@@ -46,7 +40,6 @@ class RequestProducts extends Controller
                 $message['message'] = $e->getMessage();
                 $message['status'] = StatusTrait::$status['error'];
             }
-
         }
         return response()->json($message)->setStatusCode($message['status']);
     }
@@ -57,22 +50,19 @@ class RequestProducts extends Controller
         return response()->json(Products::find($product));
     }
 
-    public function upload(Request $request, array $paths)
+    public function upload(Request $request, $field, array $paths)
     {
         $message = ['status' => StatusTrait::$status['success']];
-        if (!$request->hasFile('image')) {
+        if (!$request->hasFile($field)) {
             return ['message' => false, 'status' => StatusTrait::$status['error']];
         } else {
             try{
-                $validatedData = $request->validate([
-                    'image' => 'required|image'
-                ]);
-                $image = $request->file('image');
+                $image = $request->file($field);
                 $fileName = $this->buildFileName($image);
                 $image->storeAs($paths['folder'], $fileName, ['disk' => $paths['disk']]);
                 $message['message'] = $fileName;
             } catch( \Exception $e) {
-                $message['message'] = 'Invalid image format!';
+                $message['message'] = 'Invalid format!';
                 $message['status'] = StatusTrait::$status['error'];
             }
             return $message;
@@ -82,7 +72,7 @@ class RequestProducts extends Controller
     public function uploadImage(Request $request)
     {
         $this->getPath('products/images', 'public_path');
-        $message = $this->upload($request, ['folder' => 'images', 'disk' => 'products']);
+        $message = $this->upload($request,'image', ['folder' => 'images', 'disk' => 'products']);
         return response()->json($message)->setStatusCode($message['status']);
     }
 
@@ -130,17 +120,9 @@ class RequestProducts extends Controller
     {
         $message = ['result' => true, 'message' => 'CSV successfully uploaded!', 'status' => StatusTrait::$status['success']];
         $this->getPath('products/csv/files', 'storage_path');
-
-        if (!$request->hasFile('csv')) {
-            return response()->json(['errors' => false])->setStatusCode(StatusTrait::$status['error']);
-        } else {
-            $csv = $request->file('csv');
-            $fileName = $this->buildFileName($csv);
-            $csv->storeAs('files', $fileName, 'csv');
-            return response()->json($message)->setStatusCode($message['status']);
-        }
+        $message = $this->upload($request,'csv', ['folder' => 'csv/files', 'disk' => 'products']);
+        return response()->json($message)->setStatusCode($message['status']);
     }
-
     private function buildFileName($file)
     {
         $fileName = md5(uniqid() . '.' .

@@ -107,7 +107,7 @@
                 const data = new FormData();
                 data.append('image', this.$data.product.img);
 
-                axios.post('/api/api/products/upload-image', data).then((response) => {
+                axios.post('/api/products/upload-image', data).then((response) => {
                     this.$data.product.image = response.data.message;
                     this.$data.imgSrc = 'products/images/' + this.$data.product.image;
                 }).catch(error => {

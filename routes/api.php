@@ -22,13 +22,13 @@ Route::post('/login/refresh', 'api\RequestAuthentication@refresh');
     Route::get('/', function () {
         return response()->json(['message' => 'Jobs API', 'status' => 'Connected']);
     });
-    Route::post('products/upload-image', 'api\RequestProducts@uploadImage');
-    Route::post('products/create', 'api\RequestProducts@create');
-    Route::get('products/find/{product}', 'api\RequestProducts@find');
-    Route::post('products/edit/{product}', 'api\RequestProducts@edit');
-    Route::delete('products/destroy/{product}', 'api\RequestProducts@destroy');
-    Route::post('products/upload-csv', 'api\RequestProducts@uploadCsv');
-    Route::resource('products', 'api\RequestProducts');
+    Route::post('products/upload-image', 'api\RequestProducts@uploadImage')->middleware('auth:api');
+    Route::post('products/create', 'api\RequestProducts@create')->middleware('auth:api');
+    Route::get('products/find/{product}', 'api\RequestProducts@find')->middleware('auth:api');
+    Route::post('products/edit/{product}', 'api\RequestProducts@edit')->middleware('auth:api');
+    Route::delete('products/destroy/{product}', 'api\RequestProducts@destroy')->middleware('auth:api');
+    Route::post('products/upload-csv', 'api\RequestProducts@uploadCsv')->middleware('auth:api');
+    Route::resource('products', 'api\RequestProducts')->middleware('auth:api');
     Route::resource('product-categories', 'api\RequestProductCategories')->middleware('auth:api');
 
 Route::get('/', function () {

@@ -10,11 +10,14 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-
-Route::get('/', function () {
+use Illuminate\Http\Request;
+Route::get('/', function (Request $request) {
+    if(Auth::user()) {
         return view('dashboard.index');
+    } else {
+        return view('auth.login');
+    }
 });
-
 Auth::routes();
 Route::get('/home', 'DashboardController@index');
 Route::get('/dashboard', 'DashboardController@index')->name('home');
