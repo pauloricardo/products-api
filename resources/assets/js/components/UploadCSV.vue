@@ -40,7 +40,7 @@
                 event.preventDefault();
                 const data = new FormData();
                 data.append('csv', this.$data.file);
-                axios.post('/api/api/products/upload-csv', data).then((response) => {
+                axios.post('/api/products/upload-csv', data).then((response) => {
                     this.$parent.$bus.$emit('csvUploaded', response.data);
                 }).catch(function (response, status, request) {
                     this.$parent.$bus.$emit('csvUploaded', response.data);
