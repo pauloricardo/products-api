@@ -12,20 +12,22 @@ use Illuminate\Foundation\Bus\Dispatchable;
 class ProcessProducts implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    public $method;
+    public $timeout = 120;
+    private $filePath;
 
-    private $folder = "";
-    private $allCsvFiles = [];
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($options)
     {
-        $this->folder = storage_path('csv/files');
-        //
+        foreach($options as $key => $value) {
+            if ($value) $this->method = str_replace('-', '_', $key);
+        }
+        $this->filePath = storage_path('app/csv/files');
     }
-
     /**
      * Execute the job.
      *
@@ -33,38 +35,72 @@ class ProcessProducts implements ShouldQueue
      */
     public function handle()
     {
-        $this->openFolder(function($aCsv) {
-            foreach($aCsv as $file => $csvLines) {
-                foreach($csvLines as $line) {
-                    $product = Products::create($line);
-                }
-            }
-        });
+        try {
+            $this->{$this->method}();
+        } catch(\Exception $e) {
+            dd($e->getMessage());
+        }
     }
 
-    private function openFolder($cb) {
-        if(is_dir($this->folder)) {
-            $mainFolder = opendir($this->folder);
-            while(($file = readdir($mainFolder)) !== false) {
-                $this->allCsvFiles[$file] = $this->openFile($this->folder, $file);
-            }
-        }
-        return $cb($this->allCsvFiles);
-    }
-    private function openFile($dir, $file) {
-        $handle = fopen($dir . '/' . $file, "r");
-        $data = [];
-        if($handle) {
-            while(($product = fgetcsv($handle, 1000, ',')) !== false) {
-                $num = count($product);
-                for($i = 0 ; $i < $num ; $i++) {
-                    $data[] = $product[$i];
+    public function csv_import()
+    {
+        $this->scanDirectory($this->filePath . 'files/', function($csvFiles) {
+            if (!count($csvFiles)) return;
+            $date = (new \DateTime())->format('Y-m-d H:i');
+            $log = [];
+            $product = '';
+            try {
+                \DB::beginTransaction();
+                foreach($csvFiles as $fileName => $dataInsert) {
+                    foreach($dataInsert as $data) {
+                        $product = Product::create($data);
+                        $log[] = [$fileName => $product];
+                    }
+                    $file = $this->filePath . "files/{$fileName}";
+                    $importedFile = $this->filePath . "imported/{$fileName}";
+//                    if (file_exists($file)) {
+//                        \File::move($file, $importedFile);
+//                        \Mail::to(User::first()->getAttribute('email'))
+//                            ->send(new ProductsImported($log, $importedFile));
+//                    }
+                    \DB::commit();
                 }
+            } catch(\Exception $exception) {
+                $log = [$fileName => $product, 'error' => $exception->getMessage()];
+                \DB::rollBack();
             }
-            fclose($handle);
-            return $data;
-        } else {
-            return [];
+            file_put_contents(storage_path("logs/import_csv-{$date}.log"), json_encode($log), FILE_APPEND);
+        });
+    }
+    private function scanDirectory($path, $handler)
+    {
+        $csvfiles = [];
+        foreach(glob("{$path}*.csv", GLOB_BRACE) as $i => $file) {
+            $csvfiles[basename($file)] = $this->getCSV($file);
+        }
+        return $handler($csvfiles);
+    }
+    private function getCSV(string $filename, string $delimiter = ',')
+    {
+        if (!file_exists($filename) || !is_readable($filename)) return false;
+
+        try {
+
+            $header = null;
+            $data   = [];
+            if (($handle = fopen($filename, 'r')) !== false) {
+                while (($row = fgetcsv($handle, 1000, $delimiter)) !== false) {
+                    if (!$header)
+                        $header = $row;
+                    else
+                        $data[] = array_combine($header, $row);
+                }
+
+                fclose($handle);
+                return $data;
+            }
+        } catch(\Exception $e) {
+            dd($e->getMessage());
         }
     }
 }
