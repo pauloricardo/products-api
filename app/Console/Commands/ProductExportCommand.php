@@ -40,8 +40,6 @@ class ProductExportCommand extends Command
     {
         $arguments  = $this->arguments();
         $options    = $this->options();
-        ProcessProducts::dispatch($options)
-            ->onConnection('redis')
-            ->onQueue('products');
+        ProcessProducts::dispatch($options);
     }
 }

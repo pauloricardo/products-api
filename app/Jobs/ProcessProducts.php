@@ -2,7 +2,9 @@
 
 namespace App\Jobs;
 
+use App\Mail\CsvImportedMail;
 use App\Products;
+use App\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -23,10 +25,7 @@ class ProcessProducts implements ShouldQueue
      */
     public function __construct($options)
     {
-        foreach($options as $key => $value) {
-            if ($value) $this->method = str_replace('-', '_', $key);
-        }
-        $this->filePath = storage_path('app/csv/files');
+        $this->filePath = storage_path('app/csv/');
     }
     /**
      * Execute the job.
@@ -36,7 +35,7 @@ class ProcessProducts implements ShouldQueue
     public function handle()
     {
         try {
-            $this->{$this->method}();
+            $this->csv_import();
         } catch(\Exception $e) {
             dd($e->getMessage());
         }
@@ -52,18 +51,18 @@ class ProcessProducts implements ShouldQueue
             try {
                 \DB::beginTransaction();
                 foreach($csvFiles as $fileName => $dataInsert) {
-                    foreach($dataInsert as $data) {
-                        $product = Product::create($data);
+                    foreach($dataInsert as $key => $data) {
+                        $product = Products::create($data);
                         $log[] = [$fileName => $product];
                     }
                     $file = $this->filePath . "files/{$fileName}";
-                    $importedFile = $this->filePath . "imported/{$fileName}";
-//                    if (file_exists($file)) {
-//                        \File::move($file, $importedFile);
+                        $importedFile = $this->filePath . "imported/{$fileName}";
+                        if (file_exists($file)) {
+                        \File::move($file, $importedFile);
 //                        \Mail::to(User::first()->getAttribute('email'))
-//                            ->send(new ProductsImported($log, $importedFile));
-//                    }
-                    \DB::commit();
+//                            ->send(new CsvImportedMail($log, $importedFile));
+                        }
+                        \DB::commit();
                 }
             } catch(\Exception $exception) {
                 $log = [$fileName => $product, 'error' => $exception->getMessage()];
@@ -75,30 +74,36 @@ class ProcessProducts implements ShouldQueue
     private function scanDirectory($path, $handler)
     {
         $csvfiles = [];
-        foreach(glob("{$path}*.csv", GLOB_BRACE) as $i => $file) {
-            $csvfiles[basename($file)] = $this->getCSV($file);
+        if(is_dir($path)){
+            if ($dh = opendir($path)) {
+                while (($file = readdir($dh)) !== false) {
+                    if($file !== '.' && $file !== '..') {
+                        $csvfiles[$file] = $this->getCSV($path . '/' . $file);
+                    }
+//                    echo "filename: $file : filetype: " . filetype($path . $file) . "\n";
+                }
+                closedir($dh);
+            }
         }
         return $handler($csvfiles);
     }
-    private function getCSV(string $filename, string $delimiter = ',')
+    private function getCSV($filename, $delimiter = ',')
     {
         if (!file_exists($filename) || !is_readable($filename)) return false;
 
         try {
-
-            $header = null;
-            $data   = [];
-            if (($handle = fopen($filename, 'r')) !== false) {
-                while (($row = fgetcsv($handle, 1000, $delimiter)) !== false) {
-                    if (!$header)
-                        $header = $row;
+            $arData   = [];
+            if(($handle = fopen($filename, 'r')) !== false ) {
+                $header = null;
+                $arData = [];
+                while(($data = fgetcsv($handle, 1000, $delimiter)) !== false ) {
+                    if(!$header)
+                        $header = $data;
                     else
-                        $data[] = array_combine($header, $row);
+                        $arData[] = array_combine($header, $data);
                 }
-
-                fclose($handle);
-                return $data;
             }
+            return $arData;
         } catch(\Exception $e) {
             dd($e->getMessage());
         }

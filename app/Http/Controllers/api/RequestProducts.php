@@ -119,8 +119,8 @@ class RequestProducts extends Controller
     protected function uploadCsv(Request $request)
     {
         $message = ['result' => true, 'message' => 'CSV successfully uploaded!', 'status' => StatusTrait::$status['success']];
-        $this->getPath('products/csv/files', 'storage_path');
-        $message = $this->upload($request,'csv', ['folder' => 'csv/files', 'disk' => 'products']);
+        $this->getPath('csv/files', 'storage_path');
+        $message = $this->upload($request,'csv', ['folder' => 'files', 'disk' => 'csv']);
         return response()->json($message)->setStatusCode($message['status']);
     }
     private function buildFileName($file)

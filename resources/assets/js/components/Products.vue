@@ -50,7 +50,7 @@
                 $('#modalCsvUpload').modal('toggle');
                 this.$parent.$bus.$emit('emitMessage', {
                     'class': response.status !== 200 ? 'danger' : 'success',
-                    'message': response.message
+                    'message': response.message + ' successfully exported!'
                 });
             });
         },

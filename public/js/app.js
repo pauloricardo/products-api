@@ -43473,7 +43473,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             $('#modalCsvUpload').modal('toggle');
             _this.$parent.$bus.$emit('emitMessage', {
                 'class': response.status !== 200 ? 'danger' : 'success',
-                'message': response.message
+                'message': response.message + ' successfully exported!'
             });
         });
     },
